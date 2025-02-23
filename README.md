@@ -1,6 +1,6 @@
-# PortSwitcher
+# Express Port Switcher
 
-A smart port management tool that automatically tries to bind your server to a preferred port (e.g., port 3000), but if that port is already in use, it detects that and forwards incoming requests to an available port instead.
+A smart port management tool that automatically tries to bind your Express server to a preferred port (e.g., port 3000), but if that port is already in use, it detects that and forwards incoming requests to an available port instead.
 
 ## Features
 
@@ -13,14 +13,14 @@ A smart port management tool that automatically tries to bind your server to a p
 ## Installation
 
 ```bash
-npm install port-switcher
+npm install express-port-switcher
 ```
 
 ## Usage
 
 ```typescript
 import express from "express";
-import { PortSwitcher } from "port-switcher";
+import { PortSwitcher } from "express-port-switcher";
 
 const app = express();
 app.get("/", (req, res) => {
