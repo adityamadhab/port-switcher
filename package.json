@@ -1,6 +1,6 @@
 {
   "name": "express-port-switcher",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "A smart port management tool that automatically finds and forwards to available ports when preferred ports are in use",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

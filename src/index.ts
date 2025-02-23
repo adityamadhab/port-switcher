@@ -1,5 +1,4 @@
 import express, { Express } from 'express';
-import httpProxy from 'http-proxy';
 import { findNextAvailablePort, isPortAvailable } from './lib/portUtils';
 
 export interface PortSwitcherOptions {
@@ -9,68 +8,49 @@ export interface PortSwitcherOptions {
 }
 
 export class PortSwitcher {
-  private proxy: httpProxy;
   private actualPort: number | null = null;
   private preferredPort: number;
   private maxAttempts: number;
   private onPortSwitch?: (preferredPort: number, actualPort: number) => void;
+  private server: any = null;
 
   constructor(options: PortSwitcherOptions = {}) {
     this.preferredPort = options.preferredPort || 3000;
     this.maxAttempts = options.maxAttempts || 100;
     this.onPortSwitch = options.onPortSwitch;
-    this.proxy = httpProxy.createProxyServer({});
   }
 
   /**
-   * Start the Express app on the preferred port, or forward to an available port if occupied
+   * Start the Express app on the preferred port, or switch to next available port if occupied
    * @param app Express application instance
    * @returns Promise resolving to the actual port the server is running on
    */
   async listen(app: Express): Promise<number> {
-    // First check if preferred port is available
-    const isPreferredPortAvailable = await isPortAvailable(this.preferredPort);
+    try {
+      // Find an available port starting from the preferred port
+      const availablePort = await findNextAvailablePort(this.preferredPort, this.maxAttempts);
+      if (!availablePort) {
+        throw new Error('No available ports found');
+      }
 
-    if (isPreferredPortAvailable) {
-      await new Promise<void>((resolve) => {
-        app.listen(this.preferredPort, () => {
-          this.actualPort = this.preferredPort;
+      // Start the server on the available port
+      await new Promise<void>((resolve, reject) => {
+        this.server = app.listen(availablePort, () => {
+          this.actualPort = availablePort;
+          if (availablePort !== this.preferredPort && this.onPortSwitch) {
+            this.onPortSwitch(this.preferredPort, availablePort);
+          }
           resolve();
         });
+        this.server.on('error', reject);
       });
-      return this.preferredPort;
+
+      return availablePort;
+    } catch (error) {
+      // Clean up resources in case of error
+      await this.close();
+      throw error;
     }
-
-    // Find next available port
-    const availablePort = await findNextAvailablePort(this.preferredPort + 1, this.maxAttempts);
-    if (!availablePort) {
-      throw new Error('No available ports found');
-    }
-
-    // Start the actual server on the available port
-    await new Promise<void>((resolve) => {
-      app.listen(availablePort, () => {
-        this.actualPort = availablePort;
-        resolve();
-      });
-    });
-
-    // Create proxy server on preferred port
-    const proxyApp = express();
-    proxyApp.all('*', (req, res) => {
-      this.proxy.web(req, res, { target: `http://localhost:${availablePort}` });
-    });
-
-    await new Promise<void>((resolve) => {
-      proxyApp.listen(this.preferredPort, () => {
-        if (this.onPortSwitch) {
-          this.onPortSwitch(this.preferredPort, availablePort);
-        }
-        resolve();
-      });
-    });
-
-    return availablePort;
   }
 
   /**
@@ -81,10 +61,12 @@ export class PortSwitcher {
   }
 
   /**
-   * Close both the proxy and the actual server
+   * Close the server
    */
   async close(): Promise<void> {
-    this.proxy.close();
+    if (this.server) {
+      this.server.close();
+    }
   }
 }
 
