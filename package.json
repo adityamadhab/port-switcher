@@ -1,0 +1,55 @@
+{
+  "name": "port-switcher",
+  "version": "1.0.0",
+  "description": "A smart port management tool that automatically finds and forwards to available ports when preferred ports are in use",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "example": "ts-node examples/basic-usage.ts"
+  },
+  "keywords": [
+    "port-management",
+    "port-forwarding",
+    "express",
+    "http-proxy",
+    "server",
+    "typescript",
+    "node"
+  ],
+  "author": "Aditya Madhab Borah",
+  "license": "MIT",
+  "dependencies": {
+    "express": ">=4.0.0",
+    "http-proxy": "^1.18.1"
+  },
+  "peerDependencies": {
+    "express": ">=4.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/http-proxy": "^1.17.16",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^18.15.11",
+    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/parser": "^5.59.0",
+    "eslint": "^8.38.0",
+    "jest": "^29.5.0",
+    "prettier": "^2.8.7",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
