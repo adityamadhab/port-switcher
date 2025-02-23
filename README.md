@@ -1,5 +1,8 @@
 # Express Port Switcher
 
+[![npm version](https://badge.fury.io/js/express-port-switcher.svg)](https://www.npmjs.com/package/express-port-switcher)
+[![GitHub](https://img.shields.io/github/license/adityamadhab/port-switcher)](https://github.com/adityamadhab/port-switcher/blob/main/LICENSE)
+
 A smart port management tool that automatically tries to bind your Express server to a preferred port (e.g., port 3000), but if that port is already in use, it detects that and forwards incoming requests to an available port instead.
 
 ## Features
